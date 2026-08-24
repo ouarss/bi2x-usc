@@ -53,6 +53,11 @@ main {
 .zone:hover { filter: brightness(1.6); }
 .zone.choisie { stroke: var(--accent); stroke-width: 3; }
 
+/* ring speakers: coloured arc segments (the wrapped LED strip) plus an outline */
+.seg { stroke: none; }
+.ring-bord { fill: none; stroke: #33495c; stroke-width: 1.5; pointer-events: none; }
+.zone.ring.choisie .ring-bord { stroke: var(--accent); stroke-width: 3; }
+
 .btn {
   fill: #131a20;
   stroke: #3a5468;

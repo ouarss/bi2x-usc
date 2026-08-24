@@ -102,6 +102,77 @@ const setGradient = (z, stops) => {
   })
 }
 
+// The four speakers and the woofer are LED tubes: a strip wrapped around a
+// ring. They render as arc segments, each the colour at its point along the
+// loop, so the light runs around the ring instead of filling a flat disc.
+const RINGS = {
+  1: { cx: 152, cy: 128, r: 22, ri: 12 },
+  2: { cx: 368, cy: 128, r: 22, ri: 12 },
+  6: { cx: 150, cy: 356, r: 21, ri: 11 },
+  7: { cx: 370, cy: 356, r: 21, ri: 11 },
+  8: { cx: 260, cy: 512, r: 24, ri: 13 },
+}
+const RING_N = 24
+const isRing = (z) => RINGS[z] !== undefined
+
+const parseCol = (c) => (c[0] === '#' ? chans(c) : c.match(/\d+/g).map(Number))
+const lerpCol = (a, b, w) => {
+  const [r1, g1, b1] = parseCol(a), [r2, g2, b2] = parseCol(b)
+  const m = (x, y) => Math.round(x + (y - x) * w)
+  return `rgb(${m(r1, r2)},${m(g1, g2)},${m(b1, b2)})`
+}
+// Colour of the effective stops (each {c, p}) at position p (0..100).
+const sampleEff = (eff, p) => {
+  if (eff.length === 1 || p <= eff[0].p) return eff[0].c
+  const last = eff[eff.length - 1]
+  if (p >= last.p) return last.c
+  for (let k = 0; k < eff.length - 1; k++) {
+    if (p <= eff[k + 1].p) {
+      const span = eff[k + 1].p - eff[k].p || 1
+      return lerpCol(eff[k].c, eff[k + 1].c, (p - eff[k].p) / span)
+    }
+  }
+  return last.c
+}
+
+const ringSegPath = (cx, cy, r, ri, a0, a1) => {
+  const pt = (rad, a) =>
+    `${(cx + rad * Math.cos(a)).toFixed(2)} ${(cy + rad * Math.sin(a)).toFixed(2)}`
+  return `M${pt(r, a0)} A${r} ${r} 0 0 1 ${pt(r, a1)} ` +
+         `L${pt(ri, a1)} A${ri} ${ri} 0 0 0 ${pt(ri, a0)} Z`
+}
+const donutPath = (cx, cy, r, ri) =>
+  `M${cx} ${cy} m${-r} 0 a${r} ${r} 0 1 0 ${2 * r} 0 a${r} ${r} 0 1 0 ${-2 * r} 0 ` +
+  `M${cx} ${cy} m${-ri} 0 a${ri} ${ri} 0 1 0 ${2 * ri} 0 a${ri} ${ri} 0 1 0 ${-2 * ri} 0`
+
+// Replace a ring zone's placeholder shape with its segments and an outline.
+const buildRing = (z) => {
+  const { cx, cy, r, ri } = RINGS[z]
+  const g = document.createElementNS(SVGNS, 'g')
+  g.id = 'z' + z
+  g.setAttribute('class', 'zone ring')
+  const base = (k) => (k / RING_N) * 2 * Math.PI - Math.PI / 2
+  for (let i = 0; i < RING_N; i++) {
+    const s = document.createElementNS(SVGNS, 'path')
+    s.setAttribute('class', 'seg')
+    s.setAttribute('d', ringSegPath(cx, cy, r, ri, base(i), base(i + 1) + 0.02))
+    s.dataset.p = ((i / (RING_N - 1)) * 100).toFixed(2)
+    g.appendChild(s)
+  }
+  const bord = document.createElementNS(SVGNS, 'path')
+  bord.setAttribute('class', 'ring-bord')
+  bord.setAttribute('fill-rule', 'evenodd')
+  bord.setAttribute('d', donutPath(cx, cy, r, ri))
+  g.appendChild(bord)
+  $('z' + z).replaceWith(g)
+}
+// Colour a ring: a solid colour, or a function of a segment's position.
+const paintRing = (z, col) => {
+  $('z' + z).querySelectorAll('.seg').forEach((s) => {
+    s.style.fill = typeof col === 'function' ? col(+s.dataset.p) : col
+  })
+}
+
 const paint = (index, w = 0) => {
   const list = steps()
   const i = ((index % list.length) + list.length) % list.length
@@ -120,12 +191,16 @@ const paint = (index, w = 0) => {
         return { c: lerpRgb(ci, scaledHex(sj[k].c, bB), fade),
                  p: s.p + (sj[k].p - s.p) * fade }
       })
-      if (n === 1) {
+      if (isRing(z)) {
+        paintRing(z, (p) => sampleEff(eff, p))
+      } else if (n === 1) {
         el.style.fill = eff[0].c
       } else {
         setGradient(z, eff)
         el.style.fill = `url(#gz${z})`
       }
+    } else if (isRing(z)) {
+      paintRing(z, OFF)
     } else {
       el.style.fill = OFF
     }
@@ -335,6 +410,8 @@ const paintBar = () => {
     : `linear-gradient(90deg, ${zone.map((s) => `${s.c} ${s.p}%`).join(', ')})`
 }
 
+// Turn the ring zones into segment groups before wiring their clicks.
+Object.keys(RINGS).forEach((z) => buildRing(+z))
 for (let z = 0; z < NZONES; z++) {
   $('z' + z).addEventListener('click', () => {
     if (state.type !== 'strips') return
