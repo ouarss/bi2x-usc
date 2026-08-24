@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>bi2x animator</title>
+<link rel="stylesheet" href="animator.css">
+</head>
+<body>
+<header>
+  <b>bi2x animator</b> <span class="sous">cabinet light animations, saved as .json templates</span>
+  <span class="etat" id="etat"></span>
+</header>
+
+<main>
+<section class="borne">
+  <svg id="cab" viewBox="0 0 520 700" aria-label="Original schematic of the cabinet, one shape per LED zone">
+    <!-- Front-view schematic traced from the manual's external-dimensions
+         diagram: a notched crown, big tapering wing blades, four ring
+         speakers, the wide flat control band, and the trapezoid base with the
+         V unit and its woofer. z0..z9 = the shim's zones. -->
+    <defs>
+      <radialGradient id="halo" cx="50%" cy="42%" r="70%">
+        <stop offset="0%" stop-color="#10202c"/><stop offset="100%" stop-color="#0a1016"/>
+      </radialGradient>
+    </defs>
+    <rect x="0" y="0" width="520" height="700" fill="url(#halo)"/>
+
+    <!-- Two bodies with a gap between them for the flat panel front edge. -->
+    <path d="M158 96 L362 96 L382 244 L358 356 L162 356 L138 244 Z" class="coque"/>
+    <rect x="168" y="360" width="184" height="14" rx="3" class="coque"/>
+    <path d="M172 462 L348 462 L336 636 L184 636 Z" class="coque"/>
+
+    <!-- z0 TITLE : pointed top corners, a flat top between them, W points down -->
+    <path id="z0" class="zone" d="M186 58 L196 134 L220 124 L300 124 L324 134 L334 58 L314 70 L206 70 Z"/>
+
+    <!-- z1 / z2 upper ring speakers, high, above the wing tops -->
+    <circle id="z1" class="zone" cx="152" cy="128" r="22"/>
+    <circle id="z2" class="zone" cx="368" cy="128" r="22"/>
+
+    <!-- z3 / z4 wings : blades tapering to a point, shorter than the tower -->
+    <path id="z3" class="zone" d="M136 154 L184 172 L198 344 L164 334 L146 246 Z"/>
+    <path id="z4" class="zone" d="M384 154 L336 172 L322 344 L356 334 L374 246 Z"/>
+
+    <!-- upper screen, neutral -->
+    <rect x="196" y="150" width="128" height="200" rx="4" class="ecran"/>
+
+    <!-- z6 / z7 lower ring speakers, just above the panel's top corners -->
+    <circle id="z6" class="zone" cx="150" cy="356" r="21"/>
+    <circle id="z7" class="zone" cx="370" cy="356" r="21"/>
+
+    <!-- z5 CONPANE : the wide flat panel, reader / knobs / buttons on it -->
+    <path id="z5" class="zone" d="M146 380 L374 380 L346 456 L174 456 Z"/>
+    <circle class="molette" cx="226" cy="402" r="10"/>
+    <circle class="molette" cx="294" cy="402" r="10"/>
+    <rect id="bS" class="btn" x="252" y="389" width="16" height="16" rx="3"/>
+    <rect id="bA" class="btn" x="211" y="414" width="20" height="20" rx="3"/>
+    <rect id="bB" class="btn" x="237" y="414" width="20" height="20" rx="3"/>
+    <rect id="bC" class="btn" x="263" y="414" width="20" height="20" rx="3"/>
+    <rect id="bD" class="btn" x="289" y="414" width="20" height="20" rx="3"/>
+    <rect id="bL" class="btn fx" x="228" y="440" width="20" height="12" rx="3"/>
+    <rect id="bR" class="btn fx" x="272" y="440" width="20" height="12" rx="3"/>
+
+    <!-- READER : the card reader, top-left of the panel, a rectangle -->
+    <rect id="zR" class="zone lecteur" x="166" y="386" width="38" height="26" rx="4"/>
+
+    <!-- z9 V-UNIT : the V inside the base, shorter; the woofer sits in it -->
+    <path id="z9" class="zone" d="M202 466 L232 466 L260 556 L288 466 L318 466 L276 626 L244 626 Z"/>
+
+    <!-- z8 WOOFER : between the V legs -->
+    <circle id="z8" class="zone" cx="260" cy="512" r="24"/>
+
+    <!-- labels and connector lines, the game's options screen style -->
+    <g class="fleches">
+      <line x1="110" y1="66"  x2="182" y2="72"/>  <text x="14" y="62">TITLE — z0</text>
+      <line x1="110" y1="126" x2="146" y2="126"/> <text x="14" y="122">SPEAKER UP L — z1</text>
+      <line x1="110" y1="250" x2="132" y2="250"/> <text x="14" y="246">WING L — z3</text>
+      <line x1="110" y1="356" x2="128" y2="356"/> <text x="14" y="352">SPEAKER LOW L — z6</text>
+      <line x1="110" y1="398" x2="176" y2="398"/> <text x="14" y="394">READER</text>
+      <line x1="110" y1="440" x2="182" y2="430"/> <text x="14" y="444">CONPANE — z5</text>
+      <line x1="434" y1="126" x2="376" y2="126"/> <text x="436" y="122">z2 — SPK UP R</text>
+      <line x1="434" y1="250" x2="388" y2="250"/> <text x="436" y="246">z4 — WING R</text>
+      <line x1="434" y1="356" x2="394" y2="356"/> <text x="436" y="352">z7 — SPK LOW R</text>
+      <line x1="434" y1="512" x2="288" y2="512"/> <text x="436" y="470">z8 — WOOFER</text>
+      <line x1="434" y1="586" x2="286" y2="586"/> <text x="436" y="582">z9 — V-UNIT</text>
+    </g>
+  </svg>
+  <p class="aide">Strips: click a zone, then pick its colours on the selected keyframe. Buttons: click
+     the buttons that must be ON. Reader: one colour per keyframe, shown on the reader dot.</p>
+</section>
+
+<div class="colonne-droite">
+  <!-- 1. what to edit: real tabs sitting on top of the panel -->
+  <div class="onglets">
+    <button type="button" data-type="strips" class="actif">Strips</button>
+    <button type="button" data-type="lamps">Buttons</button>
+    <button type="button" data-type="reader">Reader</button>
+  </div>
+
+  <section class="pupitre">
+  <!-- 2. the file: name, the ini line, open (popup) and save -->
+  <div class="carte">
+    <div class="rangee rangee-nom">
+      <label class="nom-champ">Name <input id="nom" maxlength="24" spellcheck="false" placeholder="animation name"></label>
+      <button type="button" id="ouvrir-popup" title="click to browse, or drop a .json here">
+        <span>open animation&#8230;</span>
+        <span class="drop-hint">or drop a .json</span>
+      </button>
+      <button type="button" id="sauver" class="fort">download .json</button>
+    </div>
+    <div class="rangee">
+      <span class="note" id="resultat"></span>
+    </div>
+    <input type="file" id="fichier" accept=".json,application/json" hidden>
+  </div>
+
+  <!-- 3. the timeline -->
+  <div class="carte">
+    <div class="rangee">
+      <span class="titre">Timeline</span>
+      <button type="button" id="jouer" class="fort">&#9654; play</button>
+      <span class="note" id="temps"></span>
+      <span class="espace"></span>
+      <label>step <input id="stepms" type="number" min="20" max="5000" value="250"> ms</label>
+      <label id="fade-boite"><input id="fade" type="checkbox" checked> fade</label>
+    </div>
+    <div id="tlwrap" class="tlwrap">
+      <div id="timeline" class="timeline">
+        <div id="tl-fill" class="tl-fill"></div>
+        <div id="tl-cursor" class="tl-cursor"></div>
+        <div id="tl-adds"></div>
+        <div id="tl-points"></div>
+      </div>
+      <div id="kf-actions" class="kf-actions">
+        <input id="kf-bri" type="range" class="bri" min="0" max="100" value="100"
+               title="brightness of the whole strip on this keyframe">
+        <input id="couleur-reader" type="color" value="#00ddff" title="this keyframe's reader colour" hidden>
+        <input id="reader-hex" class="hexin" type="text" maxlength="7" spellcheck="false" value="#00ddff" hidden>
+        <button type="button" id="dupliquer" title="duplicate this keyframe">&#10697;</button>
+        <button type="button" id="supprimer" class="danger" title="delete this keyframe">&#10005;</button>
+      </div>
+    </div>
+    <span class="note">Drag a diamond to move it; click a <b>+</b> to insert a keyframe.</span>
+  </div>
+
+  <!-- 4. customise the selected keyframe -->
+  <div class="carte">
+    <div id="outils-strips">
+      <div class="rangee">
+        <span class="titre">Zone</span>
+        <span class="note" id="zone-note">none selected — click a zone on the cabinet</span>
+        <span class="espace"></span>
+        <button type="button" id="zone-toutes">apply to all zones</button>
+      </div>
+      <div id="gradwrap" class="gradwrap">
+        <div id="gradbar" class="gradbar"></div>
+        <div id="stopedit" class="stopedit" hidden>
+          <input id="stopcol" type="color" value="#00ddff">
+          <input id="stophex" class="hexin" type="text" maxlength="7" spellcheck="false" value="#00ddff">
+          <button type="button" id="stopdel" class="danger" title="delete this stop">&#10005;</button>
+        </div>
+      </div>
+    </div>
+    <div id="outils-reader" hidden>
+      <span class="note">One colour per keyframe — set it under the selected diamond on the timeline. Black turns the reader off; with fade on, a black keyframe fades it out.</span>
+    </div>
+    <div id="outils-lamps" hidden>
+      <span class="note">Click the buttons on the cabinet to turn them on for this keyframe.</span>
+    </div>
+  </div>
+  </section>
+</div>
+</main>
+
+<!-- open-animation popup: bundled examples plus a linked local folder -->
+<div id="modal" class="modal" hidden>
+  <div class="modal-panneau">
+    <div class="modal-tete">
+      <b>Open animation</b>
+      <label class="filtre"><input type="checkbox" id="filtre-example" checked> examples</label>
+      <span class="espace"></span>
+      <button type="button" id="modal-fichier-btn">load .json&#8230;</button>
+      <button type="button" id="modal-dossier-btn">link folder</button>
+      <button type="button" id="modal-fermer" class="danger">&#10005;</button>
+    </div>
+    <div id="modal-liste" class="modal-liste"></div>
+  </div>
+</div>
+
+<script src="examples.js"></script>
+<script src="animator.js"></script>
+</body>
+</html>

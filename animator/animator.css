@@ -1,0 +1,309 @@
+:root {
+  --fond: #0b1117;
+  --panneau: #101822;
+  --bord: #1d2c3a;
+  --texte: #cfe3ee;
+  --sourd: #6f8696;
+  --accent: #35e0ff;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--fond);
+  color: var(--texte);
+  font: 14px/1.45 "Segoe UI", system-ui, sans-serif;
+}
+
+header {
+  padding: 10px 16px;
+  border-bottom: 1px solid var(--bord);
+  display: flex;
+  gap: 12px;
+  align-items: baseline;
+}
+
+header .sous { color: #7e97a8; }
+header .etat { margin-left: auto; color: var(--accent); }
+
+main {
+  display: grid;
+  grid-template-columns: minmax(380px, 520px) 1fr;
+  gap: 18px;
+  padding: 16px;
+  align-items: start;
+}
+
+@media (max-width: 900px) { main { grid-template-columns: 1fr; } }
+
+.borne svg { width: 100%; height: auto; display: block; }
+
+.coque { fill: #0d141c; stroke: #2a3e50; stroke-width: 2; }
+.ecran { fill: #060a0e; stroke: #223345; stroke-width: 1.5; }
+.molette { fill: #0a0f14; stroke: #3a5468; stroke-width: 2; }
+
+.zone {
+  fill: #10181f;
+  stroke: #33495c;
+  stroke-width: 1.5;
+  cursor: pointer;
+  transition: filter .1s;
+}
+.zone:hover { filter: brightness(1.6); }
+.zone.choisie { stroke: var(--accent); stroke-width: 3; }
+
+.btn {
+  fill: #131a20;
+  stroke: #3a5468;
+  stroke-width: 1.5;
+  cursor: pointer;
+}
+.btn:hover { filter: brightness(1.8); }
+.btn.on { fill: #ffd54c; stroke: #ffe9a8; }
+
+.fleches line { stroke: #46617a; stroke-width: 1; }
+.fleches text { fill: #7e97a8; font-size: 11px; letter-spacing: .04em; }
+
+.pupitre {
+  background: var(--panneau);
+  border: 1px solid var(--bord);
+  border-radius: 8px;
+  padding: 14px 16px;
+  display: grid;
+  gap: 12px;
+}
+
+.carte {
+  background: #0d141c;
+  border: 1px solid var(--bord);
+  border-radius: 8px;
+  padding: 12px 14px;
+  display: grid;
+  gap: 10px;
+}
+
+.rangee button, select {
+  background: #0d141c;
+  border: 1px solid #33495c;
+  color: var(--texte);
+  border-radius: 6px;
+  padding: 6px 12px;
+  cursor: pointer;
+  font: inherit;
+}
+
+/* real tabs: a row above the panel, the active one merging into its top edge */
+.colonne-droite { display: grid; align-content: start; }
+.onglets { display: flex; gap: 4px; padding-left: 10px; }
+.onglets button {
+  background: #0b1017;
+  color: var(--sourd);
+  border: 1px solid var(--bord);
+  border-bottom: none;
+  border-radius: 8px 8px 0 0;
+  padding: 8px 18px;
+  cursor: pointer;
+  font: inherit;
+  position: relative;
+  top: 1px;
+}
+.onglets button:hover { color: var(--texte); }
+.onglets button.actif {
+  background: var(--panneau);
+  color: var(--accent);
+}
+button.fort { border-color: var(--accent); color: var(--accent); }
+/* same design as the other buttons, only red: an outline, not a filled box */
+button.danger {
+  background: #0d141c;
+  border: 1px solid #b5455a;
+  color: #ff9db0;
+  border-radius: 6px;
+  padding: 4px 9px;
+  cursor: pointer;
+  font: inherit;
+  line-height: 1;
+}
+button.danger:hover { background: #2a1117; border-color: #ff7488; color: #ffd9df; }
+button:hover, select:hover { filter: brightness(1.3); }
+
+.rangee { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+[hidden] { display: none !important; }
+.rangee .titre { color: #9fb6c6; text-transform: uppercase; font-size: 12px; letter-spacing: .08em; }
+.rangee .espace { flex: 1; }
+.rangee label { display: inline-flex; gap: 6px; align-items: center; }
+
+input[type="text"], input[type="number"], #nom {
+  background: #0d141c;
+  border: 1px solid #33495c;
+  color: var(--texte);
+  border-radius: 6px;
+  padding: 6px 8px;          /* matches the buttons' height */
+  width: 130px;
+  font: inherit;
+}
+#stepms { width: 80px; }
+/* the Name field flexes to fill the row up to the buttons, kept on one line */
+.rangee-nom { flex-wrap: nowrap; }
+.nom-champ { flex: 1; min-width: 0; }
+.nom-champ #nom { flex: 1; width: auto; min-width: 0; }
+input[type="color"] {
+  width: 42px; height: 28px; padding: 0;
+  background: #0d141c; border: 1px solid #33495c; border-radius: 6px;
+}
+input[type="color"]::-webkit-color-swatch { border: none; border-radius: 4px; }
+input[type="color"]::-webkit-color-swatch-wrapper { padding: 0; }
+input[type="checkbox"] { accent-color: var(--accent); }
+
+/* timeline: a track with draggable keyframe diamonds and a play cursor */
+.timeline {
+  position: relative;
+  height: 56px;
+  background: #0d141c;
+  border: 1px solid #33495c;
+  border-radius: 8px;
+  margin: 2px 0;
+  overflow: hidden;
+  user-select: none;
+}
+.tl-fill {
+  position: absolute; top: 0; left: 0; bottom: 0; width: 0;
+  background: linear-gradient(90deg, #12303c, #0d141c);
+  pointer-events: none;
+}
+.tl-cursor {
+  position: absolute; top: 0; bottom: 0; width: 2px;
+  background: #ff5c7a; left: 0; pointer-events: none;
+}
+.tl-point {
+  position: absolute; top: 50%; width: 18px; height: 18px;
+  margin: -9px 0 0 -9px;
+  background: #16304a; border: 2px solid #4a7ba0; border-radius: 4px;
+  transform: rotate(45deg);
+  cursor: grab; transition: background .1s, border-color .1s;
+}
+.tl-point:hover { border-color: var(--accent); }
+.tl-point.choisi { background: var(--accent); border-color: var(--accent); }
+.tl-point .idx {
+  position: absolute; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+  transform: rotate(-45deg);
+  font-size: 10px; color: #cfe3ee;
+}
+.tl-point.choisi .idx { color: #06121a; }
+
+/* the selected keyframe's actions, hanging below its diamond */
+.tlwrap { position: relative; padding-bottom: 32px; }
+.kf-actions {
+  position: absolute; bottom: 0; transform: translateX(-50%);
+  display: flex; gap: 6px; align-items: center; white-space: nowrap;
+  padding: 5px 8px; border-radius: 8px;
+  background: #12202c; border: 1px solid #2b3f52;
+}
+/* :not(.danger) so the delete cross keeps its red styling in the wrapper */
+.kf-actions button:not(.danger) {
+  background: #0d141c; border: 1px solid #33495c; color: var(--texte);
+  border-radius: 6px; padding: 4px 9px; font-size: 15px; line-height: 1;
+  cursor: pointer;
+}
+.kf-actions button:hover { filter: brightness(1.35); }
+
+/* insert points: a discreet, bold + between keyframes, no chrome */
+.tl-add {
+  position: absolute; top: 50%; width: 20px; height: 20px;
+  margin: -10px 0 0 -10px;
+  display: flex; align-items: center; justify-content: center;
+  color: #5f7890; font-size: 22px; font-weight: 700; line-height: 1;
+  cursor: pointer;
+}
+.tl-add:hover { color: var(--accent); }
+
+/* zone gradient editor: a bar showing the gradient with draggable stops,
+   and the selected stop's colour picker hanging below it */
+.gradwrap { position: relative; width: 300px; height: 66px; }
+/* same wrapper as .kf-actions: a boxed pill hanging under the selected stop */
+.stopedit {
+  position: absolute; top: 40px; transform: translateX(-50%);
+  display: flex; gap: 6px; align-items: center; white-space: nowrap;
+  padding: 5px 8px; border-radius: 8px;
+  background: #12202c; border: 1px solid #2b3f52;
+}
+.stopedit input[type="color"] { width: 30px; height: 22px; }
+.stopedit .danger { padding: 3px 7px; }
+.kf-actions .bri { width: 60px; }
+.kf-actions input[type="color"] { width: 30px; height: 22px; }
+/* hex field beside a colour swatch: hex is the default readout / input */
+.hexin {
+  width: 69px; background: #0d141c; border: 1px solid #33495c;
+  color: var(--texte); border-radius: 6px; padding: 4px 6px;
+  font-family: ui-monospace, "Cascadia Code", monospace; font-size: 13px;
+}
+.gradbar {
+  position: absolute; top: 0; left: 0; width: 100%; height: 26px;
+  border: 1px solid #33495c; border-radius: 6px; cursor: copy;
+}
+.gradbar .handle {
+  position: absolute; top: -5px; width: 12px; height: 36px;
+  margin-left: -6px; border-radius: 3px; box-sizing: border-box;
+  background: #0d141c; border: 2px solid #cfe3ee; cursor: ew-resize;
+}
+.gradbar .handle.sel { border-color: var(--accent); }
+
+.note { color: #7e97a8; }
+.aide { color: #7e97a8; margin: 0; }
+pre {
+  background: #0d141c; border: 1px solid var(--bord); border-radius: 6px;
+  padding: 8px 10px; margin: 0; color: #9fe8ff; overflow-x: auto;
+}
+code { color: #9fe8ff; }
+
+/* open-animation popup */
+.modal {
+  position: fixed; inset: 0; z-index: 50;
+  background: rgba(4, 8, 12, .62);
+  display: flex; align-items: center; justify-content: center;
+}
+.modal-panneau {
+  background: var(--panneau); border: 1px solid var(--bord);
+  border-radius: 10px; width: min(560px, 92vw); max-height: 80vh;
+  display: flex; flex-direction: column; gap: 12px; padding: 14px 16px;
+}
+.modal-tete { display: flex; align-items: center; gap: 8px; }
+.modal-tete button {
+  background: #0d141c; border: 1px solid #33495c; color: var(--texte);
+  border-radius: 6px; padding: 6px 12px; cursor: pointer; font: inherit;
+}
+.modal-tete button:hover { filter: brightness(1.3); }
+.modal-liste { overflow-y: auto; display: grid; gap: 6px; padding-right: 2px; }
+.anim-item { display: flex; gap: 6px; }
+.anim-open {
+  flex: 1; display: flex; align-items: center; gap: 10px; text-align: left;
+  background: #0d141c; border: 1px solid #33495c; color: var(--texte);
+  border-radius: 6px; padding: 9px 12px; cursor: pointer; font: inherit;
+}
+.anim-open:hover, .anim-play:hover { border-color: var(--accent); }
+.anim-nom { flex: 1; }
+.anim-type { color: var(--accent); font-size: 12px; text-transform: uppercase; letter-spacing: .06em; }
+.anim-src { color: var(--sourd); font-size: 12px; min-width: 54px; text-align: right; }
+.anim-play {
+  background: #0d141c; border: 1px solid #33495c; color: var(--texte);
+  border-radius: 6px; padding: 6px 12px; cursor: pointer; font: inherit;
+}
+.modal-groupe {
+  color: #9fb6c6; text-transform: uppercase; font-size: 12px;
+  letter-spacing: .08em; margin: 8px 0 2px; padding-left: 2px;
+}
+.modal-tete .filtre {
+  display: inline-flex; align-items: center; gap: 5px; color: var(--sourd);
+  font-size: 13px; cursor: pointer;
+}
+
+/* the open button doubles as a drop zone for a .json */
+#ouvrir-popup {
+  display: inline-flex; flex-direction: column; align-items: center;
+  line-height: 1.2; border-style: dashed;
+}
+#ouvrir-popup .drop-hint { font-size: 11px; color: var(--sourd); }
+#ouvrir-popup.drop-actif { border-color: var(--accent); background: #12303c; }
+#ouvrir-popup.drop-actif .drop-hint { color: var(--accent); }
