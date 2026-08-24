@@ -24,7 +24,8 @@ const state = {
   type: 'strips',
   steps: {
     strips: [makeStrips('#00ddff'), makeStrips('#0b1117')],
-    lamps: [['S'], ['A'], ['B'], ['C'], ['D'], ['L'], ['R']],
+    lamps: [['S'], ['A'], ['B'], ['C'], ['D'], ['L'], ['R'],
+            ['L'], ['D'], ['C'], ['B'], ['A']],
     reader: ['#00ddff', '#0b1117'],
   },
   sel: 0,
