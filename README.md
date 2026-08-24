@@ -92,6 +92,24 @@ The seven patterns, rebuilt from the cabinet's own lighting:
 | `menu` | the fade, two-second cycle | breathing cyan |
 | `game` | the fade, quarter-second, beat-restarted | breathing cyan |
 
+## Make your own animations
+
+The `pattern_*`, `btn_anim_*` and `reader_*` keys take a built-in name, or the name of a `.json`
+animation you make yourself. A visual editor runs in the browser, nothing to install:
+
+**https://ouarss.github.io/bi2x-usc/**
+
+Build an animation on the cabinet diagram — LED strips per zone (multi-stop gradients, per-keyframe
+brightness), a button-lamp show, or the reader colour — preview it live, then download the `.json`.
+Drop the file next to the game (the folder with `SDL2.dll`) and name it in `bi2x.ini`, without the
+`.json`:
+
+- `pattern_<hook> = <name>` for a strips animation
+- `btn_anim_<hook> = <name>` for a lamp show
+- `reader_<hook> = <name>` for the reader colour
+
+Restart the game. The page is static and works offline; nothing is uploaded.
+
 ## After a game update
 
 A game update restores the game's own `SDL2.dll` and stops the board: run the installer again.
